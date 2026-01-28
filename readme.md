@@ -368,7 +368,7 @@ Composite score calculated from:
 
 **Formula:**
 ```
-Quality Score = 100 - (weighted_issues / total_elements × 100) - (anomaly_penalty)
+Quality Score = 100 - (weighted_issues / total_elements × 100)
 ```
 
 ### Key Performance Indicators
