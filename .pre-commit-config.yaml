@@ -1,0 +1,160 @@
+# Pre-commit hooks configuration for IFC Quality Intelligence Platform
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+# Update: pre-commit autoupdate
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Prevent large files from being committed
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+
+      # Check for files that would conflict in case-insensitive filesystems
+      - id: check-case-conflict
+
+      # Check for merge conflicts
+      - id: check-merge-conflict
+
+      # Check JSON files are valid
+      - id: check-json
+
+      # Check YAML files are valid
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom YAML tags
+
+      # Check TOML files are valid
+      - id: check-toml
+
+      # Ensure files end with a newline
+      - id: end-of-file-fixer
+
+      # Remove trailing whitespace
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+
+      # Fix mixed line endings
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+      # Check for debugger imports
+      - id: debug-statements
+
+      # Detect private keys
+      - id: detect-private-key
+
+  # Python code formatting with Black
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.10
+        args: ['--line-length=100']
+
+  # Import sorting with isort
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ['--profile', 'black', '--line-length', '100']
+
+  # Linting with Ruff (faster alternative to flake8, pylint)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: ['--fix', '--exit-non-zero-on-fix']
+
+  # Type checking with mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-pyyaml
+          - types-requests
+          - pydantic>=2.0.0
+        args: ['--ignore-missing-imports', '--no-strict-optional']
+        exclude: ^(tests/|examples/)
+
+  # Security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ['-c', 'pyproject.toml']
+        additional_dependencies: ['bandit[toml]']
+        exclude: ^tests/
+
+  # Docstring coverage and style
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        additional_dependencies: ['tomli']
+        args: ['--convention=google']
+        exclude: ^(tests/|examples/)
+
+  # Notebook cleaning (remove outputs before commit)
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
+        files: \.ipynb$
+
+  # Check for common Python bugs
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      # Check for eval() usage
+      - id: python-check-blanket-noqa
+
+      # Check for # fmt: on/off without corresponding off/on
+      - id: python-check-blanket-type-ignore
+
+      # Prevent use of deprecated assertions
+      - id: python-no-eval
+
+      # Prevent use of deprecated .warn()
+      - id: python-no-log-warn
+
+      # Check for common debugger breakpoints
+      - id: python-use-type-annotations
+
+# Global configuration
+default_language_version:
+  python: python3.10
+
+# Files to exclude from all hooks
+exclude: |
+  (?x)^(
+      \.git/|
+      \.venv/|
+      venv/|
+      build/|
+      dist/|
+      \.eggs/|
+      .*\.egg-info/|
+      __pycache__/|
+      \.mypy_cache/|
+      \.pytest_cache/|
+      \.ruff_cache/|
+      mlruns/|
+      plan\.md|
+      project\.txt
+  )
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

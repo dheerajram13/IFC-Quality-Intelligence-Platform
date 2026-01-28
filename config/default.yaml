@@ -1,0 +1,49 @@
+# Default Configuration for IFC Quality Intelligence Platform
+
+# IFC Processing Configuration
+ifc:
+  extract_geometry: true
+  max_elements: null  # null = no limit
+
+# Quality Checks Configuration
+checks:
+  severity_weights:
+    critical: 3.0
+    major: 2.0
+    minor: 1.0
+  geometry:
+    min_dimension: 0.001  # meters
+    max_dimension: 10000.0  # meters
+    max_distance_from_origin: 100000.0  # meters
+
+# Machine Learning Configuration
+ml:
+  enabled: true
+  model_type: "IsolationForest"
+  contamination: 0.05  # Expected proportion of outliers
+  random_state: 42
+  n_estimators: 100
+
+# Output Configuration
+output:
+  formats:
+    - json
+    - csv
+    - html
+  include_geometry: false  # Can make outputs very large
+
+# MLflow Configuration
+mlflow:
+  tracking_uri: "./mlruns"
+  experiment_name: "ifc-quality"
+  enable_autolog: true
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: null  # Set to a path for file logging
+
+# General Settings
+project_name: "IFC Quality Intelligence"
+version: "0.1.0"
