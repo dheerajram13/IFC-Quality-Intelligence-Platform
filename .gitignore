@@ -85,6 +85,9 @@ data/
 *.pkl
 *.joblib
 
+# IFC files in examples are also ignored (they're large)
+# Download your own from buildingSMART or other sources
+
 # Reports and outputs
 reports/
 output/

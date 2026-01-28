@@ -1,8 +1,10 @@
 # IFC Quality Intelligence Platform
 
 ![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-in%20development-orange.svg)
+![BIM](https://img.shields.io/badge/BIM-IFC-brightgreen.svg)
+![3D](https://img.shields.io/badge/3D-Geometry-purple.svg)
+![ML](https://img.shields.io/badge/ML-Anomaly%20Detection-red.svg)
 
 > Automated BIM Model Validation, Quality Metrics, and Anomaly Detection for Digital Engineering Pipelines
 
