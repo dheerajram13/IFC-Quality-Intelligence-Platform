@@ -10,13 +10,6 @@
 ## 🎯 Overview
 
 The **IFC Quality Intelligence Platform** automatically validates IFC building models at scale, combining rule-based checks with machine learning to detect quality issues across hundreds of models.
-
-**Perfect for:**
-- Multi-contributor BIM projects (600+ models)
-- Quality gates in BIM execution plans
-- Continuous validation in CI/CD pipelines
-- Portfolio-wide quality monitoring
-
 ---
 
 ## ✨ Key Features
