@@ -12,14 +12,14 @@
 The **IFC Quality Intelligence Platform** automatically validates IFC building models at scale, combining rule-based checks with machine learning to detect quality issues across hundreds of models.
 ---
 
-## ✨ Key Features
+## Key Features
 
-- ✅ **Rule-Based Validation** - 7 quality checks (missing metadata, geometry issues)
-- ✅ **ML Anomaly Detection** - Isolation Forest with adaptive contamination for geometric outliers
-- ✅ **Batch Processing** - Process entire directories with fault tolerance
-- ✅ **Portfolio Analytics** - Aggregate metrics across 100s of models
-- ✅ **Dual Dashboards** - Single model + Portfolio overview modes with ML insights
-- ✅ **88 Passing Tests** - Production-ready code quality
+- **Rule-Based Validation** - 7 quality checks (missing metadata, geometry issues)
+- **ML Anomaly Detection** - Isolation Forest with adaptive contamination for geometric outliers
+- **Batch Processing** - Process entire directories with fault tolerance
+- **Portfolio Analytics** - Aggregate metrics across 100s of models
+- **Dual Dashboards** - Single model + Portfolio overview modes with ML insights
+- **88 Passing Tests** - Production-ready code quality
 
 ---
 
@@ -91,6 +91,14 @@ streamlit run apps/portfolio_dashboard.py
 
 ![Portfolio Mode Overview](images/dashboard/portfolio_view.png)
 
+**Portfolio Charts:**
+
+![Portfolio Quality Charts](images/dashboard/Charts.png)
+
+**Model Drilldown View** - Select a model from portfolio to see details:
+
+![Model Drilldown](images/dashboard/Model.png)
+
 **2. Single Model Mode** - Deep dive on one model
 - Quality threshold slider (PASS/FAIL)
 - Severity breakdown
@@ -99,9 +107,13 @@ streamlit run apps/portfolio_dashboard.py
 
 ### Key Dashboard Features
 
-**Portfolio Charts:**
+**ML Anomaly Detection:**
 
-![Portfolio Quality Charts](images/dashboard/Charts.png)
+![ML Anomaly Visualization](images/dashboard/ML.png)
+
+**Actionable Tables:**
+
+![Top Issues & Offenders](images/dashboard/Action.png)
 
 ---
 
