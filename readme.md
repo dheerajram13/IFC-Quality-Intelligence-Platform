@@ -53,11 +53,11 @@ Modern construction and infrastructure projects rely on BIM models containing hu
 
 **Current Challenges in BIM Quality Assurance:**
 
-- ❌ **High labor cost** and slow review cycles
-- ❌ **Inconsistent validation** standards across teams
-- ❌ **Increased risk** of downstream rework and errors
-- ❌ **Limited visibility** into model health over time
-- ❌ **Poor scalability** as model complexity grows
+- **High labor cost** and slow review cycles
+- **Inconsistent validation** standards across teams
+- **Increased risk** of downstream rework and errors
+- **Limited visibility** into model health over time
+- **Poor scalability** as model complexity grows
 
 **Our Solution:**
 
@@ -301,14 +301,18 @@ curl http://localhost:8000/health
 
 The Streamlit dashboard provides interactive visualization:
 
-1. **Upload IFC File**: Drag and drop or browse
-2. **Configure Options**: Enable/disable ML, select quality thresholds
+1. **Choose Data Source**:
+   - Upload an IFC file (dashboard will process it), or
+   - Use precomputed outputs in `./output` (`features.parquet`, `issues.csv`)
+2. **Configure Options**: Select top-N and optional max element limit
 3. **View Results**:
    - Quality Score and KPI tiles
    - Issue distribution charts
    - Top offenders by element type
    - Anomaly scatter plots
    - Exportable reports
+
+Note: IFC uploads require `ifcopenshell` to be installed in your environment.
 
 ## Project Structure
 
