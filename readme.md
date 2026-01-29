@@ -1,576 +1,404 @@
 # IFC Quality Intelligence Platform
 
 ![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
-![Status](https://img.shields.io/badge/status-in%20development-orange.svg)
+![Tests](https://img.shields.io/badge/tests-88%20passing-brightgreen.svg)
 ![BIM](https://img.shields.io/badge/BIM-IFC-brightgreen.svg)
-![3D](https://img.shields.io/badge/3D-Geometry-purple.svg)
 ![ML](https://img.shields.io/badge/ML-Anomaly%20Detection-red.svg)
 
-> Automated BIM Model Validation, Quality Metrics, and Anomaly Detection for Digital Engineering Pipelines
+> Enterprise-grade BIM Quality Validation with ML-powered Anomaly Detection and Portfolio Analytics
 
-## Table of Contents
+## 🎯 Overview
 
-- [Overview](#overview)
-- [Problem Statement](#problem-statement)
-- [Key Features](#key-features)
-- [Architecture](#architecture)
-- [Technology Stack](#technology-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Quick Start](#quick-start)
-- [Usage](#usage)
-  - [CLI Usage](#cli-usage)
-  - [API Usage](#api-usage)
-  - [Dashboard Usage](#dashboard-usage)
-- [Project Structure](#project-structure)
-- [Quality Metrics](#quality-metrics)
-- [Configuration](#configuration)
-- [Development](#development)
-  - [Setting Up Development Environment](#setting-up-development-environment)
-  - [Running Tests](#running-tests)
-  - [Code Quality](#code-quality)
-- [Deployment](#deployment)
-- [Examples](#examples)
-- [Roadmap](#roadmap)
-- [Contact](#contact)
+The **IFC Quality Intelligence Platform** automatically validates IFC building models at scale, combining rule-based checks with machine learning to detect quality issues across hundreds of models.
 
-## Overview
+**Perfect for:**
+- Multi-contributor BIM projects (600+ models)
+- Quality gates in BIM execution plans
+- Continuous validation in CI/CD pipelines
+- Portfolio-wide quality monitoring
 
-The **IFC Quality Intelligence Platform** is a lightweight, production-ready Python system that automatically validates IFC (Industry Foundation Classes) building models. It extracts geometry and metadata features, detects data quality issues using rule-based validation and machine learning, and produces actionable metrics through interactive dashboards and REST APIs.
+---
 
-This platform is designed to:
-- **Improve data reliability** in BIM workflows
-- **Reduce manual QA effort** by 60-80%
-- **Enable scalable automation** across digital engineering pipelines
-- **Provide actionable insights** for technical and business stakeholders
+## ✨ Key Features
 
-### Why This Matters
+✅ **Rule-Based Validation** - 7 quality checks (missing metadata, geometry issues)
+✅ **ML Anomaly Detection** - Isolation Forest for geometric outliers
+✅ **Batch Processing** - Process entire directories with fault tolerance
+✅ **Portfolio Analytics** - Aggregate metrics across 100s of models
+✅ **Dual Dashboards** - Single model + Portfolio overview modes
+✅ **88 Passing Tests** - Production-ready code quality
 
-Modern construction and infrastructure projects rely on BIM models containing hundreds of thousands of elements. Poor data quality in these models propagates into cost estimation, scheduling, digital twin systems, and analytics—creating compounding operational risks. This platform addresses these challenges with automated, repeatable, and measurable quality validation.
+---
 
-## Problem Statement
+## 🚀 Quick Start
 
-**Current Challenges in BIM Quality Assurance:**
-
-- **High labor cost** and slow review cycles
-- **Inconsistent validation** standards across teams
-- **Increased risk** of downstream rework and errors
-- **Limited visibility** into model health over time
-- **Poor scalability** as model complexity grows
-
-**Our Solution:**
-
-An intelligent, automated quality validation system that combines rule-based checks with ML-powered anomaly detection to identify issues early, standardize validation, and provide continuous quality monitoring.
-
-## Key Features
-
-### Core Capabilities
-
-- **Automated IFC Parsing**: Extract element metadata and 3D geometry from IFC files
-- **Feature Engineering**: Compute ML-ready features (bounding boxes, centroids, volumes, aspect ratios)
-- **Rule-Based Validation**: Detect missing metadata, invalid geometry, duplicates, and scale issues
-- **ML Anomaly Detection**: Identify unusual geometry patterns using Isolation Forest
-- **Quality Scoring**: Business-friendly KPIs (Quality Score 0-100, issue rates, completeness metrics)
-- **Interactive Dashboards**: Plotly/Streamlit visualizations with exportable HTML reports
-- **REST API**: FastAPI endpoints for pipeline integration
-- **CLI Tool**: Batch scanning with configurable outputs
-- **MLOps Integration**: Experiment tracking and artifact management with MLflow
-
-### Quality Checks
-
-| Check Type | Description | Severity |
-|------------|-------------|----------|
-| Missing Metadata | Elements without Name or ObjectType | Major |
-| Duplicate GlobalId | Duplicate unique identifiers (data integrity) | Critical |
-| Degenerate Geometry | Zero or near-zero bounding box dimensions | Major |
-| Scale Mismatches | Suspicious unit or scale issues | Critical |
-| Coordinate Anomalies | Elements too far from origin | Minor |
-| ML Anomalies | Unusual geometry patterns flagged by ML model | Variable |
-
-## Architecture
-
-```
-                    IFC File
-                       |
-                       v
-        +------------------------------+
-        |        IFC Loader            |
-        |   (IfcOpenShell Parser)      |
-        +------------------------------+
-                       |
-          +------------+------------+
-          |            |            |
-          v            v            v
-    +---------+  +---------+  +-------------+
-    |Geometry |  |Metadata |  |Feature Store|
-    |Extractor|  |Extractor|  | (DataFrame) |
-    +---------+  +---------+  +-------------+
-          |            |            |
-          +------------+------------+
-                       |
-                       v
-        +------------------------------+
-        |     Validation Engine        |
-        |  +----------+  +-----------+ |
-        |  |  Rule    |  | ML Anomaly| |
-        |  |  Engine  |  | Detection | |
-        |  +----------+  +-----------+ |
-        +------------------------------+
-                       |
-                       v
-              +-----------------+
-              | Metrics Engine  |
-              |(Scoring & KPIs) |
-              +-----------------+
-                       |
-          +------------+------------+
-          |            |            |
-          v            v            v
-    +----------+  +--------+  +--------+
-    |Dashboard |  |  API   |  |  CLI   |
-    |(Streamlit)  |(FastAPI)  | (Typer)|
-    +----------+  +--------+  +--------+
-          |            |            |
-          +------------+------------+
-                       |
-                       v
-              +-----------------+
-              | MLflow Tracking |
-              | (Experiments &  |
-              |   Artifacts)    |
-              +-----------------+
-```
-
-## Technology Stack
-
-### Core Technologies
-
-| Category | Technology | Purpose |
-|----------|------------|---------|
-| **Language** | Python 3.10+ | Core implementation |
-| **IFC Processing** | IfcOpenShell | Parse IFC files and extract geometry |
-| **Data Processing** | pandas, NumPy | Feature engineering and aggregation |
-| **Machine Learning** | scikit-learn | Anomaly detection (IsolationForest) |
-| **Visualization** | Plotly, Streamlit | Interactive dashboards |
-| **API Framework** | FastAPI | REST API endpoints |
-| **MLOps** | MLflow | Experiment tracking and artifacts |
-| **CLI** | Typer | Command-line interface |
-| **Containerization** | Docker | Deployment packaging |
-
-## Getting Started
-
-### Prerequisites
-
-- **Python**: 3.10 or higher
-- **pip**: Latest version
-- **Git**: For cloning the repository
-- **Docker** (optional): For containerized deployment
-
-### Installation
-
-#### Option 1: Install from Source
+### 1. Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/dheerajram13/ifc-quality-intelligence.git
 cd ifc-quality-intelligence
 
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
 pip install -r requirements.txt
-
-# Install in development mode
 pip install -e .
 ```
 
-#### Option 2: Using Docker
+### 2. Single File Analysis
 
 ```bash
-# Build the Docker image
-docker build -t ifcqi:latest .
+# Analyze one IFC file with ML
+python examples/example_ml_anomaly_detection.py examples/ifc_files/Duplex_MEP_20110907.ifc
 
-# Run the container
-docker run -p 8000:8000 -v $(pwd)/data:/app/data ifcqi:latest
+# Output:
+# ✓ Quality Score: 90.6/100
+# ✓ Issues: 90 (1 major, 89 minor)
+# ✓ ML Anomalies: 49 (5.1%)
 ```
 
-### Quick Start
-
-#### 1. Scan an IFC File (CLI)
+### 3. Batch Processing (Portfolio Mode)
 
 ```bash
-# Basic scan
-ifcqi scan examples/sample.ifc --out reports/
+# Process all IFC files in a directory
+python examples/example_batch_processing.py examples/ifc_files
 
-# Scan with all features enabled
-ifcqi scan examples/sample.ifc --out reports/ --html --ml --mlflow
-
-# Batch scan multiple files
-ifcqi batch-scan data/*.ifc --out reports/batch/
+# Creates:
+# output/portfolio/
+#   ├── portfolio_summary.csv      # One row per model
+#   ├── portfolio_metrics.json     # Aggregate KPIs
+#   └── <model_name>/
+#       ├── metrics.json
+#       ├── issues.csv
+#       ├── anomalies.csv
+#       └── report.html
 ```
 
-#### 2. Launch Dashboard
+### 4. Launch Dashboard
 
 ```bash
-# Start Streamlit dashboard
-streamlit run apps/dashboard.py
+# Portfolio Dashboard (NEW!)
+streamlit run apps/portfolio_dashboard.py
 
 # Access at http://localhost:8501
 ```
 
-#### 3. Start API Server
+---
 
-```bash
-# Start FastAPI server
-uvicorn ifcqi.api.main:app --reload --host 0.0.0.0 --port 8000
+## 📊 Portfolio Dashboard
 
-# API documentation at http://localhost:8000/docs
-```
+### Two Modes
 
-## Usage
+**1. Portfolio Mode** - Overview of 100+ models
+- Portfolio KPIs (avg quality, models below threshold, total issues)
+- Quality score distribution
+- Top 10 offenders by critical issues
+- Pareto analysis across all models
+- **Drilldown** - Click model → view detailed charts
 
-### CLI Usage
+![Portfolio Mode Overview](images/dashboard/portfolio_view.png)
 
-The CLI provides flexible options for scanning IFC files:
+**2. Single Model Mode** - Deep dive on one model
+- Quality threshold slider (PASS/FAIL)
+- Severity breakdown
+- Top 20 issues table (actionable)
+- Metadata completeness metrics
 
-```bash
-# Help
-ifcqi --help
+![Single Model Drilldown](images/dashboard/drilldown_view.png)
 
-# Basic scan with JSON output
-ifcqi scan model.ifc --out ./output
+### Key Dashboard Features
 
-# Generate HTML report
-ifcqi scan model.ifc --out ./output --html
+**Portfolio Charts:**
 
-# Enable ML anomaly detection
-ifcqi scan model.ifc --out ./output --ml
+![Portfolio Quality Charts](images/dashboard/portfolio_charts.png)
 
-# Track with MLflow
-ifcqi scan model.ifc --out ./output --mlflow --experiment-name "project-alpha"
+**Top Issues Table:**
 
-# Custom configuration
-ifcqi scan model.ifc --out ./output --config config.yaml
-
-# Verbose logging
-ifcqi scan model.ifc --out ./output --verbose
-```
-
-### API Usage
-
-#### Scan IFC File
-
-```bash
-# Upload and scan IFC file
-curl -X POST "http://localhost:8000/scan" \
-  -F "file=@path/to/model.ifc" \
-  -F "enable_ml=true"
-```
-
-**Response:**
-
-```json
-{
-  "status": "success",
-  "metrics": {
-    "total_elements": 15420,
-    "quality_score": 87.5,
-    "critical_issues": 3,
-    "major_issues": 24,
-    "minor_issues": 156,
-    "issue_rate": 11.87,
-    "metadata_completeness": 0.92,
-    "anomaly_rate": 0.03
-  },
-  "issues": [...],
-  "anomalies": [...],
-  "processing_time": 12.45
-}
-```
-
-#### Health Check
-
-```bash
-curl http://localhost:8000/health
-```
-
-### Dashboard Usage
-
-The Streamlit dashboard provides interactive visualization:
-
-1. **Choose Data Source**:
-   - Upload an IFC file (dashboard will process it), or
-   - Use precomputed outputs in `./output` (`features.parquet`, `issues.csv`)
-2. **Configure Options**: Select top-N and optional max element limit
-3. **View Results**:
-   - Quality Score and KPI tiles
-   - Issue distribution charts
-   - Top offenders by element type
-   - Anomaly scatter plots
-   - Exportable reports
-
-Note: IFC uploads require `ifcopenshell` to be installed in your environment.
-
-## Project Structure
-
-```
-ifc-quality-intelligence/
-├── src/
-│   └── ifcqi/
-│       ├── __init__.py           # Package initialization
-│       ├── config.py             # Configuration management
-│       ├── logger.py             # Logging setup
-│       ├── ifc_loader.py         # IFC file parsing
-│       ├── geometry.py           # Geometry extraction
-│       ├── features.py           # Feature engineering
-│       ├── checks.py             # Rule-based validation
-│       ├── metrics.py            # Metrics calculation
-│       ├── viz.py                # Visualization utilities
-│       ├── ml/
-│       │   ├── __init__.py
-│       │   ├── train.py          # Model training
-│       │   └── infer.py          # Inference pipeline
-│       ├── api/
-│       │   ├── __init__.py
-│       │   └── main.py           # FastAPI application
-│       └── cli.py                # CLI implementation
-├── apps/
-│   └── dashboard.py              # Streamlit dashboard
-├── examples/
-│   ├── sample.ifc                # Sample IFC files
-│   └── notebooks/                # Jupyter notebooks
-├── tests/
-│   ├── test_loader.py
-│   ├── test_checks.py
-│   └── test_metrics.py
-├── data/                         # Data directory (gitignored)
-├── reports/                      # Output reports (gitignored)
-├── mlruns/                       # MLflow tracking (gitignored)
-├── config/
-│   └── default.yaml              # Default configuration
-├── Dockerfile                    # Docker configuration
-├── docker-compose.yml            # Docker Compose setup
-├── pyproject.toml                # Project metadata and dependencies
-├── requirements.txt              # Python dependencies
-├── .pre-commit-config.yaml       # Pre-commit hooks
-├── .gitignore
-└── README.md
-```
-
-## Quality Metrics
-
-### Quality Score (0-100)
-
-Composite score calculated from:
-- **Issue severity** (weighted: Critical × 3, Major × 2, Minor × 1)
-- **Metadata completeness**
-- **Geometry coverage**
-- **Anomaly rate**
-
-**Formula:**
-```
-Quality Score = 100 - (weighted_issues / total_elements × 100)
-```
-
-### Key Performance Indicators
-
-| Metric | Description | Target |
-|--------|-------------|--------|
-| **Total Elements** | Number of IFC entities scanned | N/A |
-| **Quality Score** | Overall model health (0-100) | > 85 |
-| **Critical Issues** | Blocking quality violations | 0 |
-| **Issue Rate** | Issues per 1,000 elements | < 10 |
-| **Metadata Completeness** | % elements with required fields | > 95% |
-| **Anomaly Rate** | % geometry flagged as unusual | < 5% |
-
-## Configuration
-
-### Default Configuration (`config/default.yaml`)
-
-```yaml
-# IFC Processing
-ifc:
-  extract_geometry: true
-  max_elements: null  # null = no limit
-
-# Quality Checks
-checks:
-  severity_weights:
-    critical: 3.0
-    major: 2.0
-    minor: 1.0
-  geometry:
-    min_dimension: 0.001  # meters
-    max_dimension: 10000  # meters
-    max_distance_from_origin: 100000  # meters
-
-# ML Configuration
-ml:
-  enabled: true
-  model_type: "IsolationForest"
-  contamination: 0.05
-  random_state: 42
-
-# Output
-output:
-  formats: ["json", "csv", "html"]
-  include_geometry: false
-
-# MLflow
-mlflow:
-  tracking_uri: "./mlruns"
-  experiment_name: "ifc-quality"
-```
-
-## Development
-
-### Setting Up Development Environment
-
-```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Install pre-commit hooks
-pre-commit install
-
-# Run pre-commit on all files
-pre-commit run --all-files
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=ifcqi --cov-report=html
-
-# Run specific test file
-pytest tests/test_checks.py -v
-
-# Run with markers
-pytest -m "not slow"
-```
-
-### Code Quality
-
-This project uses:
-- **Black**: Code formatting
-- **Ruff**: Linting
-- **mypy**: Type checking
-- **isort**: Import sorting
-
-```bash
-# Format code
-black src/ tests/
-
-# Lint
-ruff check src/ tests/
-
-# Type check
-mypy src/
-```
-
-## Deployment
-
-### Docker Deployment
-
-```bash
-# Build image
-docker build -t ifcqi:v1.0 .
-
-# Run API server
-docker run -d -p 8000:8000 \
-  -v $(pwd)/data:/app/data \
-  -v $(pwd)/mlruns:/app/mlruns \
-  --name ifcqi-api \
-  ifcqi:v1.0
-
-# Run with docker-compose
-docker-compose up -d
-```
-
-### Cloud Deployment
-
-**Azure Container Instances** (example):
-
-```bash
-# Login to Azure
-az login
-
-# Create resource group
-az group create --name ifcqi-rg --location eastus
-
-# Deploy container
-az container create \
-  --resource-group ifcqi-rg \
-  --name ifcqi-api \
-  --image youracr.azurecr.io/ifcqi:latest \
-  --cpu 2 --memory 4 \
-  --ports 8000 \
-  --environment-variables MLFLOW_TRACKING_URI=<uri>
-```
-
-## Examples
-
-### Example Output
-
-**Terminal Output:**
-```
-Scanning IFC file: sample.ifc
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:12
-
-Quality Report Summary
-═══════════════════════════════════════════════════════
-Total Elements:        15,420
-Quality Score:         87.5/100
-Critical Issues:       3
-Major Issues:          24
-Minor Issues:          156
-Issue Rate:            11.87 per 1,000 elements
-Metadata Completeness: 92.3%
-Anomaly Rate:          2.8%
-
-Top Issues:
-  1. Missing Name (Major): 18 occurrences
-  2. Degenerate Geometry (Major): 6 occurrences
-  3. Missing ObjectType (Minor): 142 occurrences
-
-Reports generated in: ./reports/sample/
-  ✓ metrics.json
-  ✓ issues.csv
-  ✓ anomalies.csv
-  ✓ report.html
-```
-
-## Roadmap
-
-### Planned Features
-
-- [ ] **Enhanced Geometry Features**: Surface area, mesh complexity, volume calculations
-- [ ] **Azure ML Integration**: Cloud-based training pipelines
-- [ ] **Azure AI Search**: Semantic model search and retrieval
-- [ ] **OpenAI Integration**: Natural language report summarization
-- [ ] **Longitudinal Tracking**: Quality metrics across project timeline
-- [ ] **Automated Regression Testing**: CI/CD quality validation
-- [ ] **Multi-Model Comparison**: Compare versions of the same model
-- [ ] **Custom Rule Builder**: UI for non-technical users to create checks
-- [ ] **Real-time Monitoring**: WebSocket-based live validation
-
-## Contact
-
-**Dheeraj Srirama**
-
-- Portfolio: [https://dheerajsrirama.netlify.app](https://dheerajsrirama.netlify.app)
-- GitHub: [@dheerajram13](https://github.com/dheerajram13)
-- LinkedIn: [Your LinkedIn Profile](#)
+![Actionable Issues Table](images/dashboard/top_issues_table.png)
 
 ---
 
-**Built with precision for the future of digital engineering**
+## 📖 Usage Guide
 
-*This project demonstrates production-oriented ML engineering practices applied to real-world AEC (Architecture, Engineering, Construction) data, showcasing feature extraction, validation pipelines, metrics tracking, experiment management, and API-based deployment.*
+### Scenario 1: Daily Quality Check (Project Manager)
+
+```bash
+# 1. Process latest models
+python examples/example_batch_processing.py /path/to/models
+
+# 2. Open dashboard
+streamlit run apps/portfolio_dashboard.py
+
+# 3. Review in 2 minutes:
+#    - Success rate (all processed?)
+#    - Avg quality (trending up?)
+#    - Models below threshold
+#    - Click worst model → see specific issues
+```
+
+### Scenario 2: Model Acceptance (BIM Coordinator)
+
+```bash
+# 1. Launch dashboard
+streamlit run apps/portfolio_dashboard.py
+
+# 2. Switch to "Single Model" mode
+
+# 3. Upload IFC file or use output folder
+
+# 4. Check quality threshold status:
+#    ✅ PASS (Score: 92.3) → Accept
+#    ❌ FAIL (Score: 67.1) → Review top issues table → Reject
+```
+
+### Scenario 3: Batch Validation (600 models)
+
+```bash
+# Sequential (slow for 600 models)
+python examples/example_batch_processing.py /models
+
+# Parallel (4x faster - recommended)
+# Edit example_batch_processing.py:
+# max_workers=8
+
+python examples/example_batch_processing.py /models
+
+# Outputs:
+# - Portfolio summary CSV (one row per model)
+# - Portfolio metrics JSON (aggregate KPIs)
+# - Per-model detailed reports
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+IFC File(s) → Batch Processor → Per-Model Pipeline:
+                                   ├─ IFC Loader
+                                   ├─ Geometry Features
+                                   ├─ Quality Checks (7 rules)
+                                   ├─ ML Anomalies
+                                   └─ Metrics
+
+              Portfolio Aggregator → Portfolio KPIs
+
+              Dashboard (Streamlit) → [Portfolio | Single Model]
+```
+
+---
+
+## 📊 Quality Metrics
+
+### Quality Score Formula
+
+```python
+score = 100 - (weighted_issues / total_elements × 100)
+
+# Weights:
+# critical = 3.0
+# major = 2.0
+# minor = 1.0
+```
+
+### 7 Quality Checks
+
+| Check | Severity | Example |
+|-------|----------|---------|
+| Missing Name | Major | Element without name attribute |
+| Missing ObjectType | Minor | Missing type metadata |
+| Duplicate GlobalId | Critical | Same ID used twice |
+| Degenerate Geometry | Major | Dimension < 1mm |
+| Extreme Dimensions | Critical | Dimension > 100km |
+| Coordinate Anomalies | Minor | Element far from origin |
+| Extreme Aspect Ratios | Minor | Very thin/flat shapes (ratio > 1000) |
+
+### ML Anomaly Detection
+
+- **Algorithm:** Isolation Forest (unsupervised)
+- **Features:** 9 geometric properties (dims, centroids, aspect ratios)
+- **Contamination:** 0.05 (expect 5% anomalies)
+- **Output:** Anomaly score + probability (0-1)
+
+---
+
+## 📁 Project Structure
+
+```
+ifc-quality-intelligence/
+├── src/ifcqi/
+│   ├── ifc_loader.py         # IFC parsing
+│   ├── geometry.py           # 3D geometry extraction
+│   ├── features.py           # Feature engineering
+│   ├── checks.py             # 7 quality rules
+│   ├── metrics.py            # Scoring & KPIs
+│   ├── batch.py              # Portfolio processing
+│   ├── viz.py                # Plotly charts
+│   └── ml/
+│       ├── preprocessing.py  # Feature scaling
+│       └── anomaly_detection.py  # Isolation Forest
+│
+├── apps/
+│   ├── dashboard.py           # Single model (legacy)
+│   └── portfolio_dashboard.py # Portfolio + Single (NEW!)
+│
+├── examples/
+│   ├── example_quality_checks.py
+│   ├── example_ml_anomaly_detection.py
+│   └── example_batch_processing.py
+│
+├── tests/                     # 88 tests
+│   ├── test_ifc_loader.py    (20 tests)
+│   ├── test_checks.py        (25 tests)
+│   ├── test_metrics.py       (6 tests)
+│   ├── test_viz.py           (12 tests)
+│   └── test_ml.py            (25 tests)
+│
+└── output/
+    └── portfolio/
+        ├── portfolio_summary.csv
+        ├── portfolio_metrics.json
+        └── <model_name>/...
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run all 88 tests
+pytest
+
+# Run specific module
+pytest tests/test_ml.py -v
+
+# With coverage
+pytest --cov=ifcqi --cov-report=html
+
+# Current status: ✅ 88/88 passing
+```
+
+---
+
+## 🎯 Example Results
+
+### Single Model: Duplex_MEP_20110907.ifc
+
+```
+Elements:        973
+Quality Score:   90.6/100 ✅
+Issues:          90 (0 critical, 1 major, 89 minor)
+ML Anomalies:    49 (5.1%)
+
+Top Issues:
+  - 47 missing object_type
+  - 42 extreme aspect ratios
+  - 1 missing name
+
+ML detected:
+  - 25 IfcFlowSegment (unusual pipe dimensions)
+  - 24 IfcSpace (57% of rooms - irregular shapes)
+```
+
+### Portfolio: 5 Models
+
+![Portfolio Summary](images/dataset/portfolio_summary.png)
+
+```
+Total Models:    5
+Success:         5 (100%)
+Avg Quality:     70.1/100
+Below Threshold: 2 (40%)
+
+Total Issues:    1,211
+  Critical: 0
+  Major:    975
+  Minor:    236
+
+ML Anomalies:    122 (4.5% avg rate)
+
+Worst Model:  Duplex_Plumbing_20121113 (score: 0.0)
+Best Model:   Duplex_Electrical_20121207 (score: 94.5)
+```
+
+**Dataset Visualization:**
+
+![Batch Processing Output](images/dataset/batch_processing_output.png)
+
+---
+
+## ⚙️ Configuration
+
+### Quality Threshold
+
+```python
+# In portfolio_dashboard.py sidebar:
+quality_threshold = 80.0  # Models below = FAIL
+
+# Adjust based on project requirements:
+# 90+ = Excellent
+# 80-89 = Good
+# 70-79 = Acceptable
+# <70 = Needs work
+```
+
+### Parallel Processing
+
+```python
+# In example_batch_processing.py:
+max_workers = None  # Sequential (safe, slow)
+max_workers = 4     # Parallel (4x faster)
+max_workers = 8     # Max CPU cores
+```
+
+### Enable/Disable ML
+
+```python
+# Batch processing:
+enable_ml = True   # ML anomaly detection ON
+enable_ml = False  # Skip ML (faster)
+```
+
+---
+
+## 🚀 Performance
+
+### Processing Time (Per Model)
+
+```
+Duplex_MEP_20110907.ifc (973 elements):
+  - IFC Loading:      0.5s
+  - Geometry:         1.5s
+  - Quality Checks:   0.3s
+  - ML Anomalies:     2.5s
+  - Total:           ~5s
+
+Scaling to 600 models:
+  Sequential:  ~50 minutes
+  Parallel (8): ~7 minutes
+```
+
+---
+
+## 📞 Support
+
+**Questions?**
+- Check `output/portfolio/portfolio_summary.csv` for failed models
+- Review examples/ folder for usage patterns
+- Run `pytest` to verify installation
+
+**Author:** Dheeraj Srirama
+**Portfolio:** [dheerajsrirama.netlify.app](https://dheerajsrirama.netlify.app)
+**GitHub:** [@dheerajram13](https://github.com/dheerajram13)
+
+---
+
+## 📝 License
+
+MIT License - See LICENSE file for details
+
+---
+
+**Built for enterprise-scale BIM quality validation**
+
+*Demonstrates production ML engineering: feature extraction, validation pipelines, batch processing, portfolio analytics, and interactive dashboards for real-world AEC data.*
