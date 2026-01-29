@@ -21,12 +21,12 @@ The **IFC Quality Intelligence Platform** automatically validates IFC building m
 
 ## ✨ Key Features
 
-✅ **Rule-Based Validation** - 7 quality checks (missing metadata, geometry issues)
-✅ **ML Anomaly Detection** - Isolation Forest for geometric outliers
-✅ **Batch Processing** - Process entire directories with fault tolerance
-✅ **Portfolio Analytics** - Aggregate metrics across 100s of models
-✅ **Dual Dashboards** - Single model + Portfolio overview modes
-✅ **88 Passing Tests** - Production-ready code quality
+- ✅ **Rule-Based Validation** - 7 quality checks (missing metadata, geometry issues)
+- ✅ **ML Anomaly Detection** - Isolation Forest with adaptive contamination for geometric outliers
+- ✅ **Batch Processing** - Process entire directories with fault tolerance
+- ✅ **Portfolio Analytics** - Aggregate metrics across 100s of models
+- ✅ **Dual Dashboards** - Single model + Portfolio overview modes with ML insights
+- ✅ **88 Passing Tests** - Production-ready code quality
 
 ---
 
@@ -385,11 +385,7 @@ Scaling to 600 models:
 
 ---
 
-## 📝 License
 
-MIT License - See LICENSE file for details
-
----
 
 **Built for enterprise-scale BIM quality validation**
 
