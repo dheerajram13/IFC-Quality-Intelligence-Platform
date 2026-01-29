@@ -104,17 +104,11 @@ streamlit run apps/portfolio_dashboard.py
 - Top 20 issues table (actionable)
 - Metadata completeness metrics
 
-![Single Model Drilldown](images/dashboard/drilldown_view.png)
-
 ### Key Dashboard Features
 
 **Portfolio Charts:**
 
-![Portfolio Quality Charts](images/dashboard/portfolio_charts.png)
-
-**Top Issues Table:**
-
-![Actionable Issues Table](images/dashboard/top_issues_table.png)
+![Portfolio Quality Charts](images/dashboard/Charts.png)
 
 ---
 
@@ -302,8 +296,6 @@ ML detected:
 
 ### Portfolio: 5 Models
 
-![Portfolio Summary](images/dataset/portfolio_summary.png)
-
 ```
 Total Models:    5
 Success:         5 (100%)
@@ -323,7 +315,7 @@ Best Model:   Duplex_Electrical_20121207 (score: 94.5)
 
 **Dataset Visualization:**
 
-![Batch Processing Output](images/dataset/batch_processing_output.png)
+![Dataset Overview](images/dataset/data.png)
 
 ---
 
