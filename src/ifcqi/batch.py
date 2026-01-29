@@ -137,8 +137,18 @@ def process_single_model(
             try:
                 from ifcqi.ml import detect_anomalies
 
+                # Use adaptive contamination based on dataset size
+                # Larger models: expect fewer outliers (0.01-0.02)
+                # Smaller models: allow more (0.05-0.10)
+                if element_count > 1000:
+                    contamination = 0.02  # 2% for large models
+                elif element_count > 500:
+                    contamination = 0.03  # 3% for medium models
+                else:
+                    contamination = 0.05  # 5% for small models
+
                 anomalies, _ = detect_anomalies(
-                    features_df, contamination=0.05, random_state=42
+                    features_df, contamination=contamination, random_state=42
                 )
                 anomaly_df = pd.DataFrame([vars(a) for a in anomalies])
                 anomaly_df.to_csv(model_output_dir / "anomalies.csv", index=False)

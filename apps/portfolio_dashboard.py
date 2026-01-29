@@ -173,6 +173,44 @@ def build_issue_rate_distribution(summary_df: pd.DataFrame) -> go.Figure:
     return fig
 
 
+def build_anomaly_rate_chart(summary_df: pd.DataFrame, top_n: int = 10) -> go.Figure:
+    """Bar chart of top N models by ML anomaly rate."""
+    success_df = summary_df[summary_df["status"] == "success"].copy()
+
+    if success_df.empty:
+        return px.bar(title=f"Top {top_n} Models by ML Anomaly Rate")
+
+    # Filter to only models with anomaly data
+    anomaly_df = success_df[success_df["anomaly_count"].notna() & (success_df["anomaly_count"] > 0)]
+
+    if anomaly_df.empty:
+        return px.bar(title="ML Anomaly Detection (No Anomalies Detected)")
+
+    top_df = anomaly_df.nlargest(top_n, "anomaly_rate")
+    top_df = top_df.sort_values("anomaly_rate", ascending=True)
+
+    # Convert anomaly_rate to percentage
+    top_df["anomaly_pct"] = top_df["anomaly_rate"] * 100
+
+    fig = px.bar(
+        top_df,
+        x="anomaly_pct",
+        y="model_name",
+        orientation="h",
+        title=f"Top {top_n} Models by ML Anomaly Rate",
+        color="anomaly_pct",
+        color_continuous_scale="Oranges",
+    )
+
+    fig.update_layout(
+        xaxis_title="Anomaly Rate (%)",
+        yaxis_title="Model",
+        height=max(300, len(top_df) * 40),
+    )
+
+    return fig
+
+
 def build_portfolio_pareto(portfolio_dir: Path) -> go.Figure:
     """Pareto chart of top issue types across portfolio."""
     # Aggregate all issues from per-model issues.csv files
@@ -274,10 +312,16 @@ def show_portfolio_mode(portfolio_dir: Path, quality_threshold: float) -> None:
         delta_color="inverse",
     )
 
-    col5, col6, col7 = st.columns(3)
+    col5, col6, col7, col8 = st.columns(4)
     col5.metric("Total Critical Issues", metrics.get("total_critical_issues", 0))
     col6.metric("Issue Rate P50", f"{metrics.get('median_issue_rate_per_1k', 0):.1f}")
     col7.metric("Issue Rate P95", f"{metrics.get('p95_issue_rate_per_1k', 0):.1f}")
+
+    # ML Anomaly metrics
+    if "total_anomalies" in metrics:
+        col8.metric("🤖 ML Anomalies", f"{metrics.get('total_anomalies', 0)} ({metrics.get('avg_anomaly_rate', 0):.1%})")
+    else:
+        col8.metric("🤖 ML Anomalies", "N/A")
 
     st.divider()
 
@@ -311,6 +355,28 @@ def show_portfolio_mode(portfolio_dir: Path, quality_threshold: float) -> None:
             build_portfolio_pareto(portfolio_dir),
             use_container_width=True,
         )
+
+    # ML Anomaly charts (if ML was enabled)
+    if "total_anomalies" in metrics and metrics.get("total_anomalies", 0) > 0:
+        st.subheader("🤖 ML Anomaly Detection")
+
+        ml_left, ml_right = st.columns(2)
+
+        with ml_left:
+            st.plotly_chart(
+                build_anomaly_rate_chart(summary_df, top_n=10),
+                use_container_width=True,
+            )
+
+        with ml_right:
+            # ML Summary metrics
+            st.write("**ML Detection Summary**")
+            st.metric("Total Anomalies Detected", metrics.get("total_anomalies", 0))
+            st.metric("Average Anomaly Rate", f"{metrics.get('avg_anomaly_rate', 0):.1%}")
+            st.metric("Median Anomaly Rate", f"{metrics.get('median_anomaly_rate', 0):.1%}")
+            st.metric("Max Anomaly Rate", f"{metrics.get('max_anomaly_rate', 0):.1%}")
+
+            st.info("💡 ML anomalies indicate geometric outliers that may require investigation beyond standard quality checks.")
 
     st.divider()
 
@@ -371,13 +437,26 @@ def show_portfolio_mode(portfolio_dir: Path, quality_threshold: float) -> None:
                 # Show model KPIs
                 st.write(f"**Model: {selected_model}**")
 
-                m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+                m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
                 m_col1.metric("Elements", model_metrics.get("total_elements", 0))
                 m_col2.metric("Quality Score", f"{model_metrics.get('quality_score', 0):.1f}")
                 m_col3.metric("Total Issues", model_metrics.get("total_issues", 0))
                 m_col4.metric(
                     "Issue Rate/1k", f"{model_metrics.get('issue_rate_per_1000', 0):.1f}"
                 )
+
+                # Check for ML anomalies
+                anomalies_path = model_dir / "anomalies.csv"
+                if anomalies_path.exists():
+                    try:
+                        model_anomalies_df = pd.read_csv(anomalies_path)
+                        anomaly_count = int(model_anomalies_df["is_anomaly"].sum())
+                        anomaly_rate = anomaly_count / max(1, model_metrics.get("total_elements", 1)) * 100
+                        m_col5.metric("🤖 ML Anomalies", f"{anomaly_count} ({anomaly_rate:.1f}%)")
+                    except Exception:
+                        m_col5.metric("🤖 ML Anomalies", "N/A")
+                else:
+                    m_col5.metric("🤖 ML Anomalies", "N/A")
 
                 # Build metrics DataFrames for charts
                 from ifcqi.metrics import build_metrics
@@ -424,6 +503,31 @@ def show_portfolio_mode(portfolio_dir: Path, quality_threshold: float) -> None:
                         ],
                         use_container_width=True,
                     )
+
+                # ML Anomalies table for drilldown
+                if anomalies_path.exists():
+                    try:
+                        drilldown_anomalies_df = pd.read_csv(anomalies_path)
+                        anomalies_only = drilldown_anomalies_df[drilldown_anomalies_df["is_anomaly"] == True].copy()
+
+                        if not anomalies_only.empty:
+                            st.write("**🤖 ML-Detected Anomalies (Top 20)**")
+                            st.caption("Elements with unusual geometric properties")
+
+                            # Sort by anomaly score (lower = more anomalous)
+                            anomalies_display = anomalies_only.sort_values("anomaly_score", ascending=True).head(20)
+
+                            # Format probability as percentage
+                            anomalies_display["anomaly_probability_pct"] = (anomalies_display["anomaly_probability"] * 100).round(1)
+
+                            st.dataframe(
+                                anomalies_display[
+                                    ["ifc_type", "global_id", "anomaly_score", "anomaly_probability_pct"]
+                                ].rename(columns={"anomaly_probability_pct": "anomaly_probability (%)"}),
+                                use_container_width=True,
+                            )
+                    except Exception as e:
+                        st.warning(f"Could not load ML anomalies: {e}")
 
             except Exception as e:
                 st.error(f"Failed to load model data: {e}")
@@ -520,7 +624,7 @@ def show_single_model_mode(quality_threshold: float) -> None:
     col3.metric("Total Issues", metrics["total_issues"])
     col4.metric("Issue Rate / 1,000", f"{metrics['issue_rate_per_1000']:.2f}")
 
-    col5, col6, col7 = st.columns(3)
+    col5, col6, col7, col8 = st.columns(4)
     col5.metric("Name Completeness (%)", f"{metrics['metadata_completeness']['name_pct']:.1f}")
     col6.metric(
         "ObjectType Completeness (%)",
@@ -530,6 +634,20 @@ def show_single_model_mode(quality_threshold: float) -> None:
         "Geometry Coverage (%)",
         f"{metrics['metadata_completeness']['geometry_pct']:.1f}",
     )
+
+    # Check for ML anomalies from output folder
+    output_dir = Path("output")
+    anomalies_path = output_dir / "anomalies.csv"
+    if anomalies_path.exists():
+        try:
+            anomalies_df = pd.read_csv(anomalies_path)
+            anomaly_count = int(anomalies_df["is_anomaly"].sum())
+            anomaly_rate = anomaly_count / max(1, metrics["total_elements"]) * 100
+            col8.metric("🤖 ML Anomalies", f"{anomaly_count} ({anomaly_rate:.1f}%)")
+        except Exception:
+            col8.metric("🤖 ML Anomalies", "N/A")
+    else:
+        col8.metric("🤖 ML Anomalies", "N/A")
 
     st.divider()
 
@@ -572,6 +690,31 @@ def show_single_model_mode(quality_threshold: float) -> None:
             ],
             use_container_width=True,
         )
+
+    # ML Anomalies table
+    if anomalies_path.exists():
+        try:
+            anomalies_df = pd.read_csv(anomalies_path)
+            anomalies_only = anomalies_df[anomalies_df["is_anomaly"] == True].copy()
+
+            if not anomalies_only.empty:
+                st.subheader("🤖 ML-Detected Anomalies (Top 20)")
+                st.caption("Elements with unusual geometric properties detected by Isolation Forest")
+
+                # Sort by anomaly score (lower = more anomalous)
+                anomalies_display = anomalies_only.sort_values("anomaly_score", ascending=True).head(20)
+
+                # Format probability as percentage
+                anomalies_display["anomaly_probability_pct"] = (anomalies_display["anomaly_probability"] * 100).round(1)
+
+                st.dataframe(
+                    anomalies_display[
+                        ["ifc_type", "global_id", "anomaly_score", "anomaly_probability_pct"]
+                    ].rename(columns={"anomaly_probability_pct": "anomaly_probability (%)"}),
+                    use_container_width=True,
+                )
+        except Exception as e:
+            st.warning(f"Could not load ML anomalies: {e}")
 
 
 def main() -> None:
