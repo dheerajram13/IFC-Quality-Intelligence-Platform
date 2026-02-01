@@ -9,7 +9,7 @@
 
 ## 🎯 Overview
 
-The **IFC Quality Intelligence Platform** automatically validates IFC building models(supports batch), combining rule-based checks with machine learning to detect quality issues across different of models.
+The **IFC Quality Intelligence Platform** automatically validates IFC building models(batch processing), combining rule-based checks with machine learning to detect quality issues across different of models.
 ---
 
 ## Key Features
